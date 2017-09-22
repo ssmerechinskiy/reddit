@@ -3,7 +3,9 @@ package com.sergey.redditreader.ui;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
@@ -17,6 +19,10 @@ import com.sergey.redditreader.presenter.RedditsPresenter;
 import java.util.List;
 
 public class MainActivity extends BaseActivity<RedditsPresenter, RedditsView> implements RedditsView {
+
+    private SwipeRefreshLayout swipeContainer;
+    private RecyclerView redditListView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +39,22 @@ public class MainActivity extends BaseActivity<RedditsPresenter, RedditsView> im
                         .setAction("Action", null).show();
             }
         });
+
+        redditListView = (RecyclerView) findViewById(R.id.reddit_list);
+
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                presenter.requestUpdateReddits();
+            }
+        });
+        // Configure the refreshing colors
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
     }
 
     @Override
@@ -62,6 +84,9 @@ public class MainActivity extends BaseActivity<RedditsPresenter, RedditsView> im
         return super.onOptionsItemSelected(item);
     }
 
+    //----------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
+
     @Override
     public void updateReddits(List<RedditChild> reddits) {
 
@@ -76,8 +101,5 @@ public class MainActivity extends BaseActivity<RedditsPresenter, RedditsView> im
     public void showMessage(String message) {
 
     }
-
-    //----------------------------------------------------------------------------------------------
-    //----------------------------------------------------------------------------------------------
 
 }
