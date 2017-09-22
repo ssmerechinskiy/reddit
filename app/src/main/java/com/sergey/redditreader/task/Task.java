@@ -15,7 +15,7 @@ public abstract class Task {
 
     private ExecutorService executorService;
 
-    public <RL> void executeTask(final ResultListener<RL> resultListener, ExecutorService executorService) {
+    public <RL> void execute(final ResultListener<RL> resultListener, ExecutorService executorService) {
         if (executorService == null) return;
         executorService.execute(new Runnable() {
             @Override
@@ -30,7 +30,7 @@ public abstract class Task {
         });
     }
 
-    public <RL> void executeTask(final ResultListener<RL> resultListener) {
+    public <RL> void execute(final ResultListener<RL> resultListener) {
         if (defaultExecutorService == null) defaultExecutorService = Executors.newFixedThreadPool(5);
         defaultExecutorService.execute(new Runnable() {
             @Override
@@ -45,7 +45,7 @@ public abstract class Task {
         });
     }
 
-    public abstract <S> S performAction() throws Exception;
+    public abstract <RL> RL performAction() throws Exception;
 
     public Task executor(ExecutorService es) {
         executorService = es;

@@ -74,15 +74,13 @@ public class RedditsPresenter extends BasePresenter {
                 return networkDS.getRedditResponsePage(redditName, null, pageLimit);
             }
         }.executor(executorService);
-
-        task.executeTask(new Task.ResultListener<RedditResponse>() {
+        task.execute(new Task.ResultListener<RedditResponse>() {
             @Override
             public void onSuccess(RedditResponse response) {
                 redditAfterName = response.data.after;
                 reddits.addAll(response.data.children);
                 if(redditsView != null) redditsView.updateReddits(reddits);
             }
-
             @Override
             public void onError(Throwable error) {
                 if(redditsView != null) redditsView.showMessage(error.getMessage());
