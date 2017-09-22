@@ -26,15 +26,18 @@ public class RedditsPresenter extends BasePresenter {
 
     private List<RedditChild> reddits = new ArrayList<>();
 
-    private RedditsView view;
+    private RedditsView redditsView;
 
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
     private RedditNetworkDS networkDS = RedditNetworkDSImpl.INSTANCE;
 
     private Handler mainThreadHandler = new Handler(Looper.getMainLooper());
 
-    public RedditsPresenter(RedditsView v) {
-        view = v;
+//    public RedditsPresenter(RedditsView v) {
+//        redditsView = (RedditsView) getView();
+//    }
+
+    public RedditsPresenter() {
     }
 
     public void requestUpdateReddits() {
@@ -48,7 +51,7 @@ public class RedditsPresenter extends BasePresenter {
                     public void run() {
                         redditAfterName = response.data.after;
                         reddits.addAll(newReddits);
-                        if(view != null) view.updateReddits(reddits);
+                        if(redditsView != null) redditsView.updateReddits(reddits);
                     }
                 });
             }
@@ -66,7 +69,7 @@ public class RedditsPresenter extends BasePresenter {
                     public void run() {
                         redditAfterName = response.data.after;
                         reddits.addAll(newReddits);
-                        if(view != null) view.addReddits(newReddits);
+                        if(redditsView != null) redditsView.addReddits(newReddits);
                     }
                 });
             }

@@ -10,8 +10,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.sergey.redditreader.R;
+import com.sergey.redditreader.model.RedditChild;
+import com.sergey.redditreader.presenter.BasePresenter;
+import com.sergey.redditreader.presenter.RedditsPresenter;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.List;
+
+public class MainActivity extends BaseActivity<RedditsPresenter, RedditsView> implements RedditsView {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +33,11 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+    }
+
+    @Override
+    public BasePresenter createPresenter() {
+        return new RedditsPresenter();
     }
 
     @Override
@@ -51,4 +61,18 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void updateReddits(List<RedditChild> reddits) {
+
+    }
+
+    @Override
+    public void addReddits(List<RedditChild> reddits) {
+
+    }
+
+    //----------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
+
 }
