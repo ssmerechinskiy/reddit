@@ -18,17 +18,6 @@ public enum PresenterManager {
     private Map<Long, BasePresenter> activitiesPresenters = new HashMap<>();
     private Set<Long> savedActivities = new HashSet<>();
 
-//    public RedditsPresenter initRedditsPresenter(RedditsView redditsView) {
-//        RedditsPresenter presenter = (RedditsPresenter) activitiesPresenters.get(redditsView.getId());
-//        if(presenter == null) {
-//            presenter = new RedditsPresenter(redditsView);
-//            activitiesPresenters.put(redditsView.getId(), presenter);
-//        } else {
-//            savedActivities.remove(redditsView.getId());
-//        }
-//        return presenter;
-//    }
-
     public <P extends BasePresenter, V extends BaseView> P initPresenter(V view) {
         P presenter = (P) activitiesPresenters.get(view.getId());
         if(presenter == null) {
@@ -42,7 +31,10 @@ public enum PresenterManager {
     }
 
     public void releaseRedditsPresenter(long viewId) {
-        if(savedActivities.contains(viewId)) return;
+        if(savedActivities.contains(viewId)) {
+            savedActivities.remove(viewId);
+            return;
+        }
         RedditsPresenter presenter = (RedditsPresenter) activitiesPresenters.get(viewId);
         if(presenter != null) {
             activitiesPresenters.remove(viewId);

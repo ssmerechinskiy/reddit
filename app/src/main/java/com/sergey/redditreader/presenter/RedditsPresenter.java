@@ -34,6 +34,8 @@ public class RedditsPresenter extends BasePresenter {
 
     private Handler mainThreadHandler = new Handler(Looper.getMainLooper());
 
+    private List<Task> currentTasks = new ArrayList<>();
+
     public RedditsPresenter() {
     }
 
@@ -66,22 +68,24 @@ public class RedditsPresenter extends BasePresenter {
     }
 
     public void requestUpdateReddits2() {
-        Task.executeTask(new Task() {
+        Task task = new Task() {
             @Override
-            public RedditResponse execute() throws Exception {
+            public RedditResponse performAction() throws Exception {
                 return networkDS.getRedditResponsePage(redditName, null, pageLimit);
             }
-        }, new Task.ResultListener<RedditResponse>() {
+        }.executor(executorService);
+
+        task.executeTask(new Task.ResultListener<RedditResponse>() {
             @Override
             public void onSuccess(RedditResponse response) {
-                List<RedditChild> newReddits = response.data.children;
                 redditAfterName = response.data.after;
-                reddits.addAll(newReddits);
+                reddits.addAll(response.data.children);
                 if(redditsView != null) redditsView.updateReddits(reddits);
             }
+
             @Override
-            public void onError(Throwable e) {
-                if(redditsView != null) redditsView.showMessage(e.getMessage());
+            public void onError(Throwable error) {
+                if(redditsView != null) redditsView.showMessage(error.getMessage());
             }
         });
     }
