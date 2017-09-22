@@ -8,5 +8,5 @@ import com.sergey.redditreader.model.RedditResponse;
 
 public interface RedditNetworkDS {
     //if (nameFrom = null) then it will be 1st page
-    RedditResponse getRedditResponsePage(String redditName, String nameFrom, int pageLimit);
+    RedditResponse getRedditResponsePage(String redditName, String nameFrom, int pageLimit) throws Exception;
 }

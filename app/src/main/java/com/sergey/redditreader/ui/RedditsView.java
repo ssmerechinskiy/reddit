@@ -1,6 +1,7 @@
 package com.sergey.redditreader.ui;
 
 import com.sergey.redditreader.model.RedditChild;
+import com.sergey.redditreader.task.Task;
 
 import java.util.List;
 
@@ -11,4 +12,5 @@ import java.util.List;
 public interface RedditsView extends BaseView {
     void updateReddits(List<RedditChild> reddits);
     void addReddits(List<RedditChild> reddits);
+    void showMessage(String message);
 }

@@ -72,6 +72,11 @@ public class MainActivity extends BaseActivity<RedditsPresenter, RedditsView> im
 
     }
 
+    @Override
+    public void showMessage(String message) {
+
+    }
+
     //----------------------------------------------------------------------------------------------
     //----------------------------------------------------------------------------------------------
 
