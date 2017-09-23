@@ -31,18 +31,33 @@ public abstract class Task {
     }
 
     public <RL> void execute(final ResultListener<RL> resultListener) {
-        if (defaultExecutorService == null) defaultExecutorService = Executors.newFixedThreadPool(5);
-        defaultExecutorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final RL result = performAction();
-                    if(resultListener != null) resultListener.onSuccessHandler(result);
-                } catch (final Exception e) {
-                    if(resultListener != null) resultListener.onErrorHandler(e);
+        if (executorService != null && !executorService.isShutdown() && !executorService.isTerminated()) {
+            defaultExecutorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        final RL result = performAction();
+                        if(resultListener != null) resultListener.onSuccessHandler(result);
+                    } catch (final Exception e) {
+                        if(resultListener != null) resultListener.onErrorHandler(e);
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            // TODO: 23.09.2017 add check for executor 
+            defaultExecutorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        final RL result = performAction();
+                        if(resultListener != null) resultListener.onSuccessHandler(result);
+                    } catch (final Exception e) {
+                        if(resultListener != null) resultListener.onErrorHandler(e);
+                    }
+                }
+            });    
+        }
+        
     }
 
     public abstract <RL> RL performAction() throws Exception;

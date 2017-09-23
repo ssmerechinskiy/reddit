@@ -6,9 +6,9 @@ import com.sergey.redditreader.ui.BaseView;
  * Created by user on 22.09.2017.
  */
 
-public abstract class BasePresenter {
+public abstract class BasePresenter<T extends BaseView> {
     private final long id;
-    private BaseView view;
+    protected T view;
 
     public BasePresenter() {
         id = System.currentTimeMillis();
@@ -18,11 +18,11 @@ public abstract class BasePresenter {
         return id;
     }
 
-    public BaseView getView() {
-        return view;
-    }
+//    public T getView() {
+//        return view;
+//    }
 
-    public void setView(BaseView v) {
+    public void setView(T v) {
         view = v;
     }
 }

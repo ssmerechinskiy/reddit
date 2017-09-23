@@ -58,6 +58,9 @@ public class RedditChild {
         @SerializedName("url")
         public String url;
 
+        @SerializedName("created")
+        public long date;
+
         public static class Preview {
             @SerializedName("enabled")
             public boolean enabled;

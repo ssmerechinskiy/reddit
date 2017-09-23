@@ -53,6 +53,7 @@ public enum RedditNetworkDSImpl implements RedditNetworkDS {
         okHttpBuilder.writeTimeout(1, TimeUnit.MINUTES);
         okHttpBuilder.readTimeout(1, TimeUnit.MINUTES);
         OkHttpClient client = okHttpBuilder.build();
+
         return client;
     }
 

@@ -12,5 +12,9 @@ import java.util.List;
 public interface RedditsView extends BaseView {
     void updateReddits(List<RedditChild> reddits);
     void addReddits(List<RedditChild> reddits);
-    void showMessage(String message);
+    void showToastMessage(String message);
+    void showRefreshingProgress();
+    void hideRefreshingProgress();
+    void showLoadMoreProgress();
+    void hideLoadMoreProgress();
 }

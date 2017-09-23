@@ -2,12 +2,14 @@ package com.sergey.redditreader.presenter;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import com.sergey.redditreader.datasource.RedditNetworkDS;
 import com.sergey.redditreader.datasource.RedditNetworkDSImpl;
 import com.sergey.redditreader.model.RedditChild;
 import com.sergey.redditreader.model.RedditResponse;
 import com.sergey.redditreader.task.Task;
+import com.sergey.redditreader.ui.MainActivity;
 import com.sergey.redditreader.ui.RedditsView;
 
 import java.util.ArrayList;
@@ -19,15 +21,14 @@ import java.util.concurrent.Executors;
  * Created by user on 21.09.2017.
  */
 
-public class RedditsPresenter extends BasePresenter {
+public class RedditsPresenter extends BasePresenter<RedditsView> {
+    private final static String TAG = RedditsPresenter.class.getSimpleName();
 
     private String redditName = "BlackMetal";
     private final static int pageLimit = 5;
     private String redditAfterName = "";
 
     private List<RedditChild> reddits = new ArrayList<>();
-
-    private RedditsView redditsView;
 
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
     private RedditNetworkDS networkDS = RedditNetworkDSImpl.INSTANCE;
@@ -39,81 +40,77 @@ public class RedditsPresenter extends BasePresenter {
     public RedditsPresenter() {
     }
 
+    //----------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
     public void requestUpdateReddits() {
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                final RedditResponse response;
-                try {
-                    response = networkDS.getRedditResponsePage(redditName, null, pageLimit);
-                    final List<RedditChild> newReddits = response.data.children;
-                    mainThreadHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            redditAfterName = response.data.after;
-                            reddits.addAll(newReddits);
-                            if(redditsView != null) redditsView.updateReddits(reddits);
-                        }
-                    });
-                } catch (final Exception e) {
-                    mainThreadHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if(redditsView != null) redditsView.showMessage(e.getMessage());
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    public void requestUpdateReddits2() {
+        Log.d(TAG, "requestUpdateReddits");
         Task task = new Task() {
             @Override
             public RedditResponse performAction() throws Exception {
                 return networkDS.getRedditResponsePage(redditName, null, pageLimit);
             }
         }.executor(executorService);
-        task.execute(new Task.ResultListener<RedditResponse>() {
+        if(view != null) view.showRefreshingProgress();
+        task.execute((new Task.ResultListener<RedditResponse>() {
             @Override
             public void onSuccess(RedditResponse response) {
-                redditAfterName = response.data.after;
-                reddits.addAll(response.data.children);
-                if(redditsView != null) redditsView.updateReddits(reddits);
+                handleUpdateRedditsSuccess(response);
             }
             @Override
             public void onError(Throwable error) {
-                if(redditsView != null) redditsView.showMessage(error.getMessage());
+                handleUpdateRedditsError(error);
             }
-        });
+        }).handler(mainThreadHandler));
     }
 
+    private void handleUpdateRedditsSuccess(RedditResponse response) {
+        Log.d(TAG, "updating new reddits:" + response.data.children.size());
+        redditAfterName = response.data.after;
+        reddits.clear();
+        reddits.addAll(response.data.children);
+        if(view != null) view.hideRefreshingProgress();
+        if(view != null) view.updateReddits(reddits);
+    }
+
+    private void handleUpdateRedditsError(Throwable error) {
+        if(view != null) view.hideRefreshingProgress();
+        if(view != null) view.showToastMessage(error.getMessage());
+    }
+
+    //----------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
     public void requestAddRedditsPage() {
-        executorService.execute(new Runnable() {
+        Log.d(TAG, "requestAddReddits");
+        Task task = new Task() {
             @Override
-            public void run() {
-                final RedditResponse response;
-                try {
-                    response = networkDS.getRedditResponsePage(redditName, redditAfterName, pageLimit);
-                    final List<RedditChild> newReddits = response.data.children;
-                    mainThreadHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            redditAfterName = response.data.after;
-                            reddits.addAll(newReddits);
-                            if(redditsView != null) redditsView.addReddits(newReddits);
-                        }
-                    });
-                } catch (final Exception e) {
-                    mainThreadHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if(redditsView != null) redditsView.showMessage(e.getMessage());
-                        }
-                    });
-                }
+            public RedditResponse performAction() throws Exception {
+                return networkDS.getRedditResponsePage(redditName, redditAfterName, pageLimit);
             }
-        });
+        }.executor(executorService);
+        if(view != null) view.showLoadMoreProgress();
+        task.execute((new Task.ResultListener<RedditResponse>() {
+            @Override
+            public void onSuccess(RedditResponse response) {
+                handleAddRedditsSuccess(response);
+            }
+            @Override
+            public void onError(Throwable error) {
+                handleAddRedditsError(error);
+            }
+        }).handler(mainThreadHandler));
+    }
+
+    private void handleAddRedditsSuccess(RedditResponse response) {
+        Log.d(TAG, "adding new reddits:" + response.data.children.size());
+        redditAfterName = response.data.after;
+        reddits.addAll(response.data.children);
+        if(view != null) view.hideLoadMoreProgress();
+        if(view != null) view.addReddits(response.data.children);
+    }
+
+    private void handleAddRedditsError(Throwable error) {
+        if(view != null) view.hideLoadMoreProgress();
+        if(view != null) view.showToastMessage(error.getMessage());
     }
 
     public List<RedditChild> getReddits() {
