@@ -2,12 +2,16 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginTop="5dp"
     android:padding="5dp"
+    android:background="?android:attr/selectableItemBackground"
     >
-    <LinearLayout
-        android:id="@+id/top_content"
+    <RelativeLayout
+        android:id="@+id/top_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        >
 
         <RelativeLayout
             android:id="@+id/image_container"
@@ -17,82 +21,76 @@
             >
             <ImageView
                 android:id="@+id/image"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="@dimen/image_size"
+                android:layout_height="@dimen/image_size"
                 android:layout_centerInParent="true"
                 />
-
         </RelativeLayout>
 
-        <RelativeLayout
-            android:id="@+id/content_container"
+        <TextView
+            android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:text="Title"
+            android:layout_alignParentTop="true"
             android:layout_toRightOf="@+id/image_container"
             android:layout_marginLeft="10dp"
-            >
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                >
+            />
 
-                <TextView
-                    android:id="@+id/title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="18sp"
-                    android:text="Title"
-                    android:layout_alignParentTop="true"
-                    />
-                <LinearLayout
-                    android:id="@+id/date_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_below="@+id/title"
-                    >
-                    <TextView
-                        android:id="@+id/date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="12sp"
-                        android:text="date"
-                        android:textColor="@android:color/darker_gray"
-                        />
-                    <TextView
-                        android:id="@+id/author"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="12sp"
-                        android:layout_marginLeft="10dp"
-                        android:text="author"
-                        android:textColor="@android:color/darker_gray"
-                        />
-                </LinearLayout>
+    </RelativeLayout>
 
-            </RelativeLayout>
-
-        </RelativeLayout>
-
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/comments"
-        android:layout_below="@+id/top_content"
-        android:layout_alignLeft="@+id/top_content"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:id="@+id/bottom_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
-        android:text="comments"
-        android:layout_marginTop="10dp"
-        android:textColor="@android:color/darker_gray"
-        />
+        android:layout_below="@+id/top_container"
+        android:layout_marginTop="5dp"
+        >
+
+        <TextView
+            android:id="@+id/comments"
+            android:layout_width="@dimen/image_size"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:text="comments"
+            android:textColor="@android:color/darker_gray"
+            />
+
+        <LinearLayout
+            android:id="@+id/date_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_toRightOf="@+id/comments"
+            android:layout_marginLeft="10dp"
+            >
+            <TextView
+                android:id="@+id/date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:text="date"
+                android:textColor="@android:color/darker_gray"
+                />
+            <TextView
+                android:id="@+id/author"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:layout_marginLeft="10dp"
+                android:text="author"
+                android:textColor="@android:color/darker_gray"
+                />
+        </LinearLayout>
+
+    </RelativeLayout>
 
     <View
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1px"
-        android:layout_below="@+id/comments"
+        android:layout_below="@+id/bottom_container"
         android:layout_marginTop="5dp"
         android:background="#7B7B7B"/>
 

@@ -17,4 +17,5 @@ public interface RedditsView extends BaseView {
     void hideRefreshingProgress();
     void showLoadMoreProgress();
     void hideLoadMoreProgress();
+    void updateViewTitle(String title);
 }

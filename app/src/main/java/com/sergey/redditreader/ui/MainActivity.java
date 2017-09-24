@@ -1,26 +1,31 @@
 package com.sergey.redditreader.ui;
 
+import android.app.Activity;
+import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.sergey.redditreader.R;
 import com.sergey.redditreader.model.RedditChild;
-import com.sergey.redditreader.presenter.BasePresenter;
-import com.sergey.redditreader.presenter.RedditsPresenter;
+import com.sergey.redditreader.presenter.BaseActivityPresenter;
+import com.sergey.redditreader.presenter.RedditsActivityPresenter;
 
 import java.util.List;
 
-public class MainActivity extends BaseActivity<RedditsPresenter, RedditsView> implements RedditsView {
+public class MainActivity extends BaseActivity<RedditsActivityPresenter, RedditsView> implements RedditsView {
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
@@ -37,15 +42,6 @@ public class MainActivity extends BaseActivity<RedditsPresenter, RedditsView> im
         setSupportActionBar(toolbar);
 
         snackbar = Snackbar.make(findViewById(android.R.id.content), "Loading next page...", Snackbar.LENGTH_LONG);
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//
-//            }
-//        });
 
         swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -64,21 +60,46 @@ public class MainActivity extends BaseActivity<RedditsPresenter, RedditsView> im
         redditListView = (RecyclerView) findViewById(R.id.reddit_list);
         redditListView.setLayoutManager(new LinearLayoutManager(this));
 
-        presenter.requestUpdateReddits();
+//        presenter.requestUpdateReddits();
 
+    }
+
+//    protected void onPostCreate(Bundle savedInstanceState) {
+//        super.onPostCreate(savedInstanceState);
+//        presenter.onPostCreate();
+//    }
+//
+//    protected void onStart() {
+//        super.onStart();
+//        presenter.onStart();
+//    }
+//
+//    protected void onStop() {
+//        super.onStop();
+//        presenter.onStop();
+//    }
+//
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        presenter.onDestroy();
+//    }
+
+    @Override
+    public BaseActivityPresenter createPresenter() {
+        return new RedditsActivityPresenter();
     }
 
     @Override
-    public BasePresenter createPresenter() {
-        return new RedditsPresenter();
+    public Context getContext() {
+        return this;
     }
 
     //----------------------------------------------------------------------------------------------
     //----------------------------------------------------------------------------------------------
-
     @Override
     public void updateReddits(List<RedditChild> reddits) {
         Log.d(TAG, "updateReddits:" + reddits.size());
+//        initAdapter(reddits);
         if(adapter == null) {
             initAdapter(reddits);
         } else {
@@ -121,20 +142,32 @@ public class MainActivity extends BaseActivity<RedditsPresenter, RedditsView> im
         if(snackbar.isShown()) snackbar.dismiss();
     }
 
+    @Override
+    public void updateViewTitle(String title) {
+        getSupportActionBar().setTitle(title);
+    }
+
 
     //----------------------------------------------------------------------------------------------
     //----------------------------------------------------------------------------------------------
     private void initAdapter(List<RedditChild> reddits) {
-        adapter = new RedditsAdapter(this, reddits, new RedditsAdapter.OnLoadMoreListener() {
+        adapter = new RedditsAdapter(this, reddits, new RedditsAdapter.Callback() {
             @Override
             public void onLoadMore() {
                 Log.d(TAG, "onLoadMore");
                 presenter.requestAddRedditsPage();
             }
+
+            @Override
+            public void onItemClick(RedditChild redditChild) {
+                presenter.onRedditClick(redditChild, MainActivity.this);
+            }
         }, redditListView);
         redditListView.setAdapter(adapter);
     }
 
+    //----------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -151,12 +184,36 @@ public class MainActivity extends BaseActivity<RedditsPresenter, RedditsView> im
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            showDialog(this);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+
+    public void showDialog(Activity activity){
+        final Dialog dialog = new Dialog(activity);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.enter_name_layout);
+
+
+        final EditText name = (EditText) dialog.findViewById(R.id.name);
+        name.setText(presenter.getRedditName());
+
+        Button dialogButton = (Button) dialog.findViewById(R.id.ok);
+        dialogButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.onChangeRedditName(name.getText().toString());
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+
+    }
 
 
 }

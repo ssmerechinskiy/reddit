@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.sergey.redditreader.ui.MainActivity" >
     <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
+        android:title="@string/action_change_reddits"
         android:orderInCategory="100"
-        app:showAsAction="never" />
+        android:icon="@drawable/ic_settings"
+        app:showAsAction="always" />
 </menu>

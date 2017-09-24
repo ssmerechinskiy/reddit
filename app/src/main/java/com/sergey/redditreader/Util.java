@@ -12,7 +12,7 @@ import java.util.Locale;
 public class Util {
 
     public static String getAuthorString(String author) {
-        return "author " + author;
+        return "author: " + author;
     }
 
     public static String getCommentsString(int count) {
@@ -44,7 +44,18 @@ public class Util {
                 dayTwo = (Calendar) day2.clone();
 
         if (dayOne.get(Calendar.YEAR) == dayTwo.get(Calendar.YEAR)) {
-            return Math.abs(dayOne.get(Calendar.HOUR_OF_DAY) - dayTwo.get(Calendar.HOUR_OF_DAY)) + " hours ago";
+            if(dayOne.get(Calendar.MONTH) == dayTwo.get(Calendar.MONTH)) {
+                int dayDiff = Math.abs(dayOne.get(Calendar.HOUR_OF_DAY) - dayTwo.get(Calendar.HOUR_OF_DAY));
+                if(dayDiff == 0) {
+                    return "just now";
+                } else {
+                    return  dayDiff + " hours ago";
+                }
+            } else {
+                int monthDiff = Math.abs(dayOne.get(Calendar.MONTH) - dayTwo.get(Calendar.MONTH));
+                return  monthDiff + " month ago";
+            }
+
         } else {
             return Math.abs(dayOne.get(Calendar.YEAR) - dayTwo.get(Calendar.YEAR)) + " year ago";
         }

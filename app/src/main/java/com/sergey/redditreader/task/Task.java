@@ -21,7 +21,7 @@ public abstract class Task {
             @Override
             public void run() {
                 try {
-                    final RL result = performAction();
+                    final RL result = performAsync();
                     if(resultListener != null) resultListener.onSuccessHandler(result);
                 } catch (final Exception e) {
                     if(resultListener != null) resultListener.onErrorHandler(e);
@@ -36,7 +36,7 @@ public abstract class Task {
                 @Override
                 public void run() {
                     try {
-                        final RL result = performAction();
+                        final RL result = performAsync();
                         if(resultListener != null) resultListener.onSuccessHandler(result);
                     } catch (final Exception e) {
                         if(resultListener != null) resultListener.onErrorHandler(e);
@@ -49,7 +49,7 @@ public abstract class Task {
                 @Override
                 public void run() {
                     try {
-                        final RL result = performAction();
+                        final RL result = performAsync();
                         if(resultListener != null) resultListener.onSuccessHandler(result);
                     } catch (final Exception e) {
                         if(resultListener != null) resultListener.onErrorHandler(e);
@@ -60,7 +60,7 @@ public abstract class Task {
         
     }
 
-    public abstract <RL> RL performAction() throws Exception;
+    public abstract <RL> RL performAsync() throws Exception;
 
     public Task executor(ExecutorService es) {
         executorService = es;

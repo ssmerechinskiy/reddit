@@ -1,7 +1,6 @@
 package com.sergey.redditreader.presenter;
 
 import com.sergey.redditreader.ui.BaseView;
-import com.sergey.redditreader.ui.RedditsView;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,27 +14,29 @@ import java.util.Set;
 public enum PresenterManager {
     INSTANCE;
 
-    private Map<Long, BasePresenter> activitiesPresenters = new HashMap<>();
+    private Map<Long, BaseActivityPresenter> activitiesPresenters = new HashMap<>();
     private Set<Long> savedActivities = new HashSet<>();
 
-    public <P extends BasePresenter, V extends BaseView> P initPresenter(V view) {
+    public <P extends BaseActivityPresenter, V extends BaseView> P initPresenter(V view) {
         P presenter = (P) activitiesPresenters.get(view.getId());
         if(presenter == null) {
             presenter = (P) view.createPresenter();
             presenter.setView(view);
             activitiesPresenters.put(view.getId(), presenter);
         } else {
+            presenter.setView(view);
+            presenter.setActivityRecreated();
             savedActivities.remove(view.getId());
         }
         return presenter;
     }
 
-    public void releaseRedditsPresenter(long viewId) {
+    public void releaseRedditsPresenterForView(long viewId) {
         if(savedActivities.contains(viewId)) {
             savedActivities.remove(viewId);
             return;
         }
-        RedditsPresenter presenter = (RedditsPresenter) activitiesPresenters.get(viewId);
+        RedditsActivityPresenter presenter = (RedditsActivityPresenter) activitiesPresenters.get(viewId);
         if(presenter != null) {
             activitiesPresenters.remove(viewId);
         }

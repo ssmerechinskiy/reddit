@@ -1,6 +1,8 @@
 package com.sergey.redditreader.ui;
 
-import com.sergey.redditreader.presenter.BasePresenter;
+import android.content.Context;
+
+import com.sergey.redditreader.presenter.BaseActivityPresenter;
 
 /**
  * Created by sober on 22.09.2017.
@@ -8,5 +10,6 @@ import com.sergey.redditreader.presenter.BasePresenter;
 
 public interface BaseView {
     long getId();
-    BasePresenter createPresenter();
+    BaseActivityPresenter createPresenter();
+    Context getContext();
 }

@@ -58,7 +58,7 @@ public class RedditChild {
         @SerializedName("url")
         public String url;
 
-        @SerializedName("created")
+        @SerializedName("created_utc")
         public long date;
 
         public static class Preview {

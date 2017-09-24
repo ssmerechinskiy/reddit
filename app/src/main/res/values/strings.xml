@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">RedditReader</string>
     <string name="action_settings">Settings</string>
+    <string name="action_change_reddits">Change reddit</string>
+
+    <string name="title_activity_image_viwer">ImageViwer</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>
