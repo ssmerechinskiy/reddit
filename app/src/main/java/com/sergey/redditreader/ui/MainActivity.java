@@ -59,30 +59,7 @@ public class MainActivity extends BaseActivity<RedditsActivityPresenter, Reddits
 
         redditListView = (RecyclerView) findViewById(R.id.reddit_list);
         redditListView.setLayoutManager(new LinearLayoutManager(this));
-
-//        presenter.requestUpdateReddits();
-
     }
-
-//    protected void onPostCreate(Bundle savedInstanceState) {
-//        super.onPostCreate(savedInstanceState);
-//        presenter.onPostCreate();
-//    }
-//
-//    protected void onStart() {
-//        super.onStart();
-//        presenter.onStart();
-//    }
-//
-//    protected void onStop() {
-//        super.onStop();
-//        presenter.onStop();
-//    }
-//
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        presenter.onDestroy();
-//    }
 
     @Override
     public BaseActivityPresenter createPresenter() {
@@ -195,7 +172,7 @@ public class MainActivity extends BaseActivity<RedditsActivityPresenter, Reddits
     public void showDialog(Activity activity){
         final Dialog dialog = new Dialog(activity);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(false);
+        dialog.setCancelable(true);
         dialog.setContentView(R.layout.enter_name_layout);
 
 

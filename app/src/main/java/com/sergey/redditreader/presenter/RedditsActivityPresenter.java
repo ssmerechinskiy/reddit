@@ -216,8 +216,10 @@ public class RedditsActivityPresenter extends BaseActivityPresenter<RedditsView>
     //----------------------------------------------------------------------------------------------
     //----------------------------------------------------------------------------------------------
     public void onChangeRedditName(String name) {
-        redditName = name;
-        requestUpdateReddits();
+        if(!TextUtils.isEmpty(name) && !name.equals(redditName)) {
+            redditName = name;
+            requestUpdateReddits();
+        }
     }
 
     public String getRedditName() {
