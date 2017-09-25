@@ -2,6 +2,7 @@ package com.sergey.redditreader.task;
 
 import android.os.Handler;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -14,50 +15,44 @@ public abstract class Task {
     private static ExecutorService defaultExecutorService = Executors.newFixedThreadPool(5);
 
     private ExecutorService executorService;
-
-    public <RL> void execute(final ResultListener<RL> resultListener, ExecutorService executorService) {
-        if (executorService == null) return;
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final RL result = performAsync();
-                    if(resultListener != null) resultListener.onSuccessHandler(result);
-                } catch (final Exception e) {
-                    if(resultListener != null) resultListener.onErrorHandler(e);
-                }
-            }
-        });
-    }
+    private WeakReference<ResultListener> weakListener;
 
     public <RL> void execute(final ResultListener<RL> resultListener) {
         if (executorService != null && !executorService.isShutdown() && !executorService.isTerminated()) {
-            defaultExecutorService.execute(new Runnable() {
+            weakListener = new WeakReference<ResultListener>(resultListener);
+            executorService.execute(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         final RL result = performAsync();
-                        if(resultListener != null) resultListener.onSuccessHandler(result);
+                        ResultListener listener = getListener();
+                        if(listener != null) listener.onSuccessHandler(result);
                     } catch (final Exception e) {
-                        if(resultListener != null) resultListener.onErrorHandler(e);
+                        ResultListener listener = getListener();
+                        if(listener != null) listener.onErrorHandler(e);
                     }
                 }
             });
         } else {
-            // TODO: 23.09.2017 add check for executor 
             defaultExecutorService.execute(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         final RL result = performAsync();
-                        if(resultListener != null) resultListener.onSuccessHandler(result);
+                        ResultListener listener = getListener();
+                        if(listener != null) listener.onSuccessHandler(result);
                     } catch (final Exception e) {
-                        if(resultListener != null) resultListener.onErrorHandler(e);
+                        ResultListener listener = getListener();
+                        if(listener != null) listener.onErrorHandler(e);
                     }
                 }
             });    
         }
         
+    }
+
+    private ResultListener getListener() {
+        return weakListener.get();
     }
 
     public abstract <RL> RL performAsync() throws Exception;
