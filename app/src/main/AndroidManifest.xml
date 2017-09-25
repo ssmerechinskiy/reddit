@@ -29,7 +29,8 @@
             android:name=".ui.ImageViwerActivity"
             android:configChanges="keyboardHidden|screenSize"
             android:label="@string/title_activity_image_viwer"
-            android:theme="@style/FullscreenTheme"></activity>
+            >
+        </activity>
     </application>
 
 </manifest>
