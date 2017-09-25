@@ -39,11 +39,14 @@ public class RedditsActivityPresenter extends BaseActivityPresenter<RedditsView>
     private ExecutorService executorService;
     private RedditNetworkDS networkDS = RedditNetworkDSImpl.INSTANCE;
 
-    private Handler mainThreadHandler;
+    private Handler mainThreadHandler = new Handler(Looper.getMainLooper());;
 
     private PreferencesWrapper preferencesWrapper;
 
-//    private List<Task> currentTasks = new ArrayList<>();
+    private Task updateRedditsTask;
+    private Task addRedditsPageTask;
+    private Task.ResultListener updateRedditsListener;
+    private Task.ResultListener addRedditsListener;
 
     public RedditsActivityPresenter() {
         Log.d(TAG, "created new presenter");
@@ -51,9 +54,28 @@ public class RedditsActivityPresenter extends BaseActivityPresenter<RedditsView>
     }
 
     private void init() {
-        mainThreadHandler = new Handler(Looper.getMainLooper());
         executorService = Executors.newSingleThreadExecutor();
         preferencesWrapper = new PreferencesWrapper(RedditApp.sContext);
+        updateRedditsListener  = new Task.ResultListener<RedditResponse>() {
+            @Override
+            public void onSuccess(RedditResponse response) {
+                handleUpdateRedditsSuccess(response);
+            }
+            @Override
+            public void onError(Throwable error) {
+                handleUpdateRedditsError(error);
+            }
+        };
+        addRedditsListener = new Task.ResultListener<RedditResponse>() {
+            @Override
+            public void onSuccess(RedditResponse response) {
+                handleAddRedditsSuccess(response);
+            }
+            @Override
+            public void onError(Throwable error) {
+                handleAddRedditsError(error);
+            }
+        };
     }
 
     private boolean checkrecreation() {
@@ -106,41 +128,36 @@ public class RedditsActivityPresenter extends BaseActivityPresenter<RedditsView>
         preferencesWrapper.setKeyRedditCount(reddits.size());
         preferencesWrapper.setRedditName(redditName);
         preferencesWrapper = null;
+        updateRedditsListener = null;
+        addRedditsListener = null;
         releaseExecutor();
         if(mainThreadHandler != null) {
             mainThreadHandler.removeCallbacksAndMessages(null);
-            mainThreadHandler = null;
         }
     }
 
     //----------------------------------------------------------------------------------------------
     //----------------------------------------------------------------------------------------------
+
     public void requestUpdateReddits() {
         requestUpdateReddits(redditName, pageLimit);
     }
 
     private void requestUpdateReddits(final String rName, final int pLimit) {
         Log.d(TAG, "requestUpdateReddits");
-        Task task = new Task() {
+        updateRedditsTask = new Task() {
             @Override
             public RedditResponse performAsync() throws Exception {
                 return networkDS.getRedditResponsePage(rName, null, pLimit);
             }
         }.executor(executorService);
+
         if(view != null) {
             view.updateViewTitle(redditName);
             view.showRefreshingProgress();
         }
-        task.execute((new Task.ResultListener<RedditResponse>() {
-            @Override
-            public void onSuccess(RedditResponse response) {
-                handleUpdateRedditsSuccess(response);
-            }
-            @Override
-            public void onError(Throwable error) {
-                handleUpdateRedditsError(error);
-            }
-        }).handler(mainThreadHandler));
+
+        updateRedditsTask.execute(updateRedditsListener.handler(mainThreadHandler));
     }
 
     private void handleUpdateRedditsSuccess(RedditResponse response) {
@@ -164,23 +181,14 @@ public class RedditsActivityPresenter extends BaseActivityPresenter<RedditsView>
     //----------------------------------------------------------------------------------------------
     public void requestAddRedditsPage() {
         Log.d(TAG, "requestAddReddits");
-        Task task = new Task() {
+        addRedditsPageTask = new Task() {
             @Override
             public RedditResponse performAsync() throws Exception {
                 return networkDS.getRedditResponsePage(redditName, redditAfterName, pageLimit);
             }
         }.executor(executorService);
         if(view != null) view.showLoadMoreProgress();
-        task.execute((new Task.ResultListener<RedditResponse>() {
-            @Override
-            public void onSuccess(RedditResponse response) {
-                handleAddRedditsSuccess(response);
-            }
-            @Override
-            public void onError(Throwable error) {
-                handleAddRedditsError(error);
-            }
-        }).handler(mainThreadHandler));
+        addRedditsPageTask.execute((addRedditsListener).handler(mainThreadHandler));
     }
 
     private void handleAddRedditsSuccess(RedditResponse response) {
