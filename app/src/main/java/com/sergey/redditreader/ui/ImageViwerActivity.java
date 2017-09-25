@@ -19,14 +19,15 @@ import android.widget.Toast;
 
 import com.sergey.redditreader.R;
 import com.sergey.redditreader.presenter.BaseActivityPresenter;
+import com.sergey.redditreader.presenter.RedditDetailPresenter;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-public class ImageViwerActivity extends AppCompatActivity {
+public class ImageViwerActivity extends BaseActivity<RedditDetailPresenter, RedditsView> implements RedditDetailView{
     private final static String TAG = ImageViwerActivity.class.getSimpleName();
 
-    private static final int PERMISSION_REQUEST_WRITE_IMAGE = 1;
+    public static final int PERMISSION_REQUEST_WRITE_IMAGE = 1;
 
     public final static String TITLE = "title";
     public final static String URL = "image_url";
@@ -38,9 +39,7 @@ public class ImageViwerActivity extends AppCompatActivity {
     private ImageView image;
     private View progressBar;
 
-    private Bitmap imageBitmap;
     private int width, height;
-    private PermissionHelper permissionHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +48,8 @@ public class ImageViwerActivity extends AppCompatActivity {
         url = getIntent().getStringExtra(URL);
         title = getIntent().getStringExtra(TITLE);
         image = (ImageView) findViewById(R.id.image);
-        permissionHelper = new PermissionHelper(this);
         progressBar = findViewById(R.id.progress);
+
         image.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -59,90 +58,45 @@ public class ImageViwerActivity extends AppCompatActivity {
                 width = image.getMeasuredWidth();
                 height = image.getMeasuredHeight();
                 Log.d(TAG, "onGlobalLayout: w:" + width + " h:" + height + " url:" + url);
-                progressBar.setVisibility(View.VISIBLE);
-                Picasso.with(ImageViwerActivity.this).load(url).into(target);
+                presenter.onImageContainerPrepared(image, width, height, url, title);
             }
         });
     }
 
-    private Target target = new Target() {
-        @Override
-        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            imageBitmap = bitmap;
+    @Override
+    public BaseActivityPresenter createPresenter() {
+        return new RedditDetailPresenter();
+    }
 
-            Picasso.with(ImageViwerActivity.this).load(url).resize(width, height).centerInside().into(image, new Callback() {
-                @Override
-                public void onSuccess() {
-                    Snackbar.make(findViewById(android.R.id.content), "Tap to image for saving", Snackbar.LENGTH_LONG).show();
-                    image.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            saveToGallery();
-                        }
-                    });
-                    progressBar.setVisibility(View.GONE);
-                }
 
-                @Override
-                public void onError() {
-                    Snackbar.make(findViewById(android.R.id.content), "Error occurred", Snackbar.LENGTH_LONG).show();
-                    progressBar.setVisibility(View.GONE);
-                }
-            });
-        }
-
-        @Override
-        public void onBitmapFailed(Drawable errorDrawable) {
-            progressBar.setVisibility(View.GONE);
-        }
-
-        @Override
-        public void onPrepareLoad(Drawable placeHolderDrawable) {
-            progressBar.setVisibility(View.VISIBLE);
-        }
-    };
-
-    private void saveToGallery() {
-        Log.d(TAG, "saveToGallery");
-        permissionHelper.requestPermission(PERMISSION_REQUEST_WRITE_IMAGE, requestPermissionCallback, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    @Override
+    public Context getContext() {
+        return this;
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if(imageBitmap != null) {
-            imageBitmap.recycle();
-            imageBitmap = null;
-        }
+    public void showImageLoadingProgress() {
+        progressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        permissionHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    public void hideImageLoadingProgress() {
+        progressBar.setVisibility(View.GONE);
     }
 
-    private PermissionHelper.RequestPermissionCallback requestPermissionCallback = new PermissionHelper.RequestPermissionCallback() {
-        @Override
-        public void onPermissionGranted(String permission, int requestCode) {
-        }
+    @Override
+    public void showSnackMessage(String message) {
+        Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG).show();
+    }
 
-        @Override
-        public void onPermissionDenied(String permission, int requestCode) {
-        }
 
-        @Override
-        public void onRequestPermissionComplete(int requestCode, int grantedCount, int requestedCount) {
-            if(grantedCount == requestedCount){
-                switch (requestCode){
-                    case PERMISSION_REQUEST_WRITE_IMAGE:
-                        MediaStore.Images.Media.insertImage(getContentResolver(), imageBitmap, title , "reddit image");
-                        Snackbar.make(findViewById(android.R.id.content), "Image saved successfully", Snackbar.LENGTH_LONG).show();
-                        break;
-                }
-            } else {
-                Toast.makeText(ImageViwerActivity.this, "Permission not granted", Toast.LENGTH_SHORT).show();
-            }
-        }
-    };
+    @Override
+    public void setTtile(String title) {
+        getSupportActionBar().setTitle(title);
+    }
 
+    @Override
+    public PermissionHelper getPermissionHelper() {
+        return permissionHelper;
+    }
 }

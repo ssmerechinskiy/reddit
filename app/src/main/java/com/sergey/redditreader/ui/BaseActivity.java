@@ -1,18 +1,12 @@
 package com.sergey.redditreader.ui;
 
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.sergey.redditreader.presenter.BaseActivityPresenter;
 import com.sergey.redditreader.presenter.PresenterManager;
-
-import java.io.File;
 
 /**
  * Created by sober on 22.09.2017.
@@ -28,6 +22,8 @@ public abstract class BaseActivity<P extends BaseActivityPresenter, V extends Ba
     private long id;
     protected P presenter;
     protected V view;
+
+    protected PermissionHelper permissionHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +48,7 @@ public abstract class BaseActivity<P extends BaseActivityPresenter, V extends Ba
 
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+        permissionHelper = new PermissionHelper(this);
         presenter.onPostCreate();
     }
 
@@ -68,7 +65,7 @@ public abstract class BaseActivity<P extends BaseActivityPresenter, V extends Ba
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        PresenterManager.INSTANCE.releaseRedditsPresenterForView(id);
+        PresenterManager.INSTANCE.releasePresenterForView(id);
         presenter.onDestroy();
     }
 
@@ -79,5 +76,11 @@ public abstract class BaseActivity<P extends BaseActivityPresenter, V extends Ba
 
     @Override
     public abstract BaseActivityPresenter createPresenter();
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        permissionHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
 
 }

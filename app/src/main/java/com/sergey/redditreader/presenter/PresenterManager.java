@@ -31,12 +31,12 @@ public enum PresenterManager {
         return presenter;
     }
 
-    public void releaseRedditsPresenterForView(long viewId) {
+    public void releasePresenterForView(long viewId) {
         if(savedActivities.contains(viewId)) {
             savedActivities.remove(viewId);
             return;
         }
-        RedditsActivityPresenter presenter = (RedditsActivityPresenter) activitiesPresenters.get(viewId);
+        BaseActivityPresenter presenter =  activitiesPresenters.get(viewId);
         if(presenter != null) {
             activitiesPresenters.remove(viewId);
         }
