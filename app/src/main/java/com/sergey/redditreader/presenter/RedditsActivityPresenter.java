@@ -213,10 +213,14 @@ public class RedditsActivityPresenter extends BaseActivityPresenter<RedditsView>
                 && reddit.data.preview.imageDataItems != null && reddit.data.preview.imageDataItems.size() > 0) {
 
             String url = reddit.data.preview.imageDataItems.get(0).source.url;
+            int w = reddit.data.preview.imageDataItems.get(0).source.width;
+            int h = reddit.data.preview.imageDataItems.get(0).source.height;
             Log.d(TAG, "open image url:" + url);
             Intent i = new Intent(activity, ImageViwerActivity.class);
             i.putExtra(ImageViwerActivity.URL, url);
             i.putExtra(ImageViwerActivity.TITLE, reddit.data.title);
+//            i.putExtra(ImageViwerActivity.WIDTH, w);
+//            i.putExtra(ImageViwerActivity.HEIGHT, h);
             activity.startActivity(i);
         }
     }

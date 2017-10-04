@@ -20,9 +20,6 @@ import android.widget.Toast;
 import com.sergey.redditreader.R;
 import com.sergey.redditreader.presenter.BaseActivityPresenter;
 import com.sergey.redditreader.presenter.RedditDetailPresenter;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 public class ImageViwerActivity extends BaseActivity<RedditDetailPresenter, RedditsView> implements RedditDetailView{
     private final static String TAG = ImageViwerActivity.class.getSimpleName();
@@ -49,7 +46,12 @@ public class ImageViwerActivity extends BaseActivity<RedditDetailPresenter, Redd
         title = getIntent().getStringExtra(TITLE);
         image = (ImageView) findViewById(R.id.image);
         progressBar = findViewById(R.id.progress);
+    }
 
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        presenter.init(url, title);
         image.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -57,8 +59,12 @@ public class ImageViwerActivity extends BaseActivity<RedditDetailPresenter, Redd
                 image.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 width = image.getMeasuredWidth();
                 height = image.getMeasuredHeight();
+//                if(width == 0 || height == 0) {
+//                    width = getIntent().getIntExtra(WIDTH, 0);
+//                    height = getIntent().getIntExtra(HEIGHT, 0);
+//                }
                 Log.d(TAG, "onGlobalLayout: w:" + width + " h:" + height + " url:" + url);
-                presenter.onImageContainerPrepared(image, width, height, url, title);
+                presenter.onImageContainerPrepared(width, height);
             }
         });
     }
@@ -99,4 +105,44 @@ public class ImageViwerActivity extends BaseActivity<RedditDetailPresenter, Redd
     public PermissionHelper getPermissionHelper() {
         return permissionHelper;
     }
+
+
+    @Override
+    public ImageView getImageView() {
+        return image;
+    }
+
+    @Override
+    public void initImageClickListener() {
+        image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getPermissionHelper().requestPermission(PERMISSION_REQUEST_WRITE_IMAGE, requestPermissionCallback, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
+        });
+    }
+
+
+    private PermissionHelper.RequestPermissionCallback requestPermissionCallback = new PermissionHelper.RequestPermissionCallback() {
+        @Override
+        public void onPermissionGranted(String permission, int requestCode) {
+        }
+
+        @Override
+        public void onPermissionDenied(String permission, int requestCode) {
+        }
+
+        @Override
+        public void onRequestPermissionComplete(int requestCode, int grantedCount, int requestedCount) {
+            if(grantedCount == requestedCount){
+                switch (requestCode){
+                    case PERMISSION_REQUEST_WRITE_IMAGE:
+                        presenter.saveImage();
+                        break;
+                }
+            } else {
+                showSnackMessage("Permission not granted");
+            }
+        }
+    };
 }
